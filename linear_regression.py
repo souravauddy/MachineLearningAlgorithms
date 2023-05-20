@@ -18,7 +18,7 @@ EPOCHS: int = 1000
 
 
 class LinearRegression(object):
-    def __init__(self, eta: float = LEARNING_RATE, epochs: int = EPOCHS) -> None:
+    def __init__(self, *, eta: float = LEARNING_RATE, epochs: int = EPOCHS) -> None:
         self.LEARNING_RATE = eta
         self.EPOCHS = epochs
 
