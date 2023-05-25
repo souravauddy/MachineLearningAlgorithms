@@ -1,10 +1,10 @@
 from __future__ import annotations
 import numpy as np
-import pandas as pd
-import scipy.spatial
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
-from sklearn.metrics import accuracy_score
+import pandas as pd     # type: ignore
+import scipy.spatial    # type: ignore
+from sklearn.datasets import load_iris      # type: ignore
+from sklearn.model_selection import train_test_split        # type: ignore
+from sklearn.metrics import accuracy_score      # type: ignore
 from typing import (
     Self,
     TypeVar,
@@ -31,7 +31,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
     def predict(self, prediction_vector: TData) -> int:
         distance_function = {
             "euclidean": self.euclidean_distance,
-            "manhattan": self.manhattan_distance
+            "manhattan": self.manhattan_distance,
         }.get(self.distance_type, self.euclidean_distance)
 
         distances = []
