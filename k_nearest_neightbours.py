@@ -6,22 +6,24 @@ from sklearn.datasets import load_iris      # type: ignore
 from sklearn.model_selection import train_test_split        # type: ignore
 from sklearn.metrics import accuracy_score      # type: ignore
 from typing import (
+    Mapping,
     Self,
     TypeVar,
     Generic,
 )
 
 
-TData = TypeVar("TData", np.ndarray, pd.DataFrame, list, covariant=True)
+TData = TypeVar("TData", np.ndarray, pd.DataFrame)
 
 
 class KNearestNeighboursClassifier(Generic[TData]):
-    def __init__(self, /, n_neighbors: int | None = None, distance_type: str = "euclidean") -> None:
+    def __init__(self, /, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Mapping[str, int]) -> None:
         if n_neighbors is None:
             n_neighbors = 3
 
         self.n_neighbors = n_neighbors | 1
         self.distance_type = distance_type
+        self.p = _kwargs.get('p') if _kwargs is not None else None
 
     def fit(self, X_data: TData, y_data: TData) -> Self:
         self.X_data = X_data
@@ -32,12 +34,13 @@ class KNearestNeighboursClassifier(Generic[TData]):
         distance_function = {
             "euclidean": self.euclidean_distance,
             "manhattan": self.manhattan_distance,
+            "minkowski": self.minkowski_distance,
         }.get(self.distance_type, self.euclidean_distance)
 
         distances = []
 
         for index, vector in enumerate(self.X_data):
-            distance = distance_function(vector, prediction_vector)
+            distance = distance_function(vector, prediction_vector, p=self.p)
             distances.append((distance, self.y_data[index]))
 
         distances.sort(
@@ -52,17 +55,21 @@ class KNearestNeighboursClassifier(Generic[TData]):
 
         neighbors = distances[:self.n_neighbors]
         ones_count = sum((neighbor[1] for neighbor in neighbors))
-        zeros_count = len(neighbors) - ones_count
+        zeros_count = self.n_neighbors - ones_count
 
         return int(ones_count > zeros_count) 
     
     @staticmethod
-    def euclidean_distance(vector1: TData, vector2: TData) -> float:
+    def euclidean_distance(vector1: TData, vector2: TData, **_) -> float:
         return scipy.spatial.distance.euclidean(vector1, vector2)
     
     @staticmethod
-    def manhattan_distance(vector1: TData, vector2: TData) -> float:
+    def manhattan_distance(vector1: TData, vector2: TData, **_) -> float:
         return scipy.spatial.distance.minkowski(vector1, vector2, p=1)
+    
+    @staticmethod
+    def minkowski_distance(vector1: TData, vector2: TData, p: int) -> float:
+        return scipy.spatial.distance.minkowski(vector1, vector2, p=p)
     
 
 def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
@@ -70,7 +77,7 @@ def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
         seed = 42
 
     np.random.seed(seed)
-    dataset = load_iris(as_frame=True)
+    dataset = load_iris(as_frame=True)  
     X_data = dataset.data[["petal width (cm)", "sepal length (cm)", "sepal width (cm)", "petal length (cm)"]].values
     y_data = dataset.target_names[dataset.target] == "virginica"
     X_data = np.array(X_data)
@@ -83,7 +90,7 @@ def main() -> int:
     X_data, y_data = generate_data()
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_data)
     k_nearest_neighbors_classifier = KNearestNeighboursClassifier(n_neighbors=5, distance_type="euclidean")
-    k_nearest_neighbors_classifier.fit(X_train, y_train)
+    k_nearest_neighbors_classifier = k_nearest_neighbors_classifier.fit(X_train, y_train)
     predictions = np.array([k_nearest_neighbors_classifier.predict(vector) for vector in X_test])
     score = accuracy_score(y_test, predictions)
 
