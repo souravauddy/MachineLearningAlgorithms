@@ -23,7 +23,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
 
         self.n_neighbors = n_neighbors | 1
         self.distance_type = distance_type
-        self.p = _kwargs.get('p') if _kwargs is not None else None
+        self.p = _kwargs.get('p') if _kwargs is not None and isinstance(_kwargs, Mapping) else None
 
     def fit(self, X_data: TData, y_data: TData) -> Self:
         self.X_data = X_data
@@ -77,7 +77,7 @@ def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
         seed = 42
 
     np.random.seed(seed)
-    dataset = load_iris(as_frame=True)  
+    dataset = load_iris(as_frame=True)
     X_data = dataset.data[["petal width (cm)", "sepal length (cm)", "sepal width (cm)", "petal length (cm)"]].values
     y_data = dataset.target_names[dataset.target] == "virginica"
     X_data = np.array(X_data)
@@ -89,7 +89,7 @@ def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
 def main() -> int:
     X_data, y_data = generate_data()
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_data)
-    k_nearest_neighbors_classifier = KNearestNeighboursClassifier(n_neighbors=5, distance_type="euclidean")
+    k_nearest_neighbors_classifier = KNearestNeighboursClassifier(n_neighbors=5, distance_type="minkowski", p=1)
     k_nearest_neighbors_classifier = k_nearest_neighbors_classifier.fit(X_train, y_train)
     predictions = np.array([k_nearest_neighbors_classifier.predict(vector) for vector in X_test])
     score = accuracy_score(y_test, predictions)
