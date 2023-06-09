@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Self
+from typing import Self, Any, Tuple
 import numpy as np
 import sys
 
@@ -31,7 +31,7 @@ class LinearRegression(object):
         return self
     
     @property
-    def weights_(self) -> np.ndarray[float]:
+    def weights_(self) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
         return self.weights.copy()
     
     def _partial_derivative(self, weight_index: int) -> float:
@@ -77,7 +77,7 @@ class LinearRegression(object):
             print(f"best cost function value is {best_cost}, and the weights are {best_weights}")
         """
 
-    def _gradient(self) -> np.ndarray[float]:
+    def _gradient(self) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
         gradient = np.zeros(self.size)
 
         for weight_index, _ in enumerate(gradient):
@@ -86,7 +86,7 @@ class LinearRegression(object):
         return gradient
 
     def _cost_function(self) -> float:
-        mean_squared_error = 0
+        mean_squared_error = 0.0
 
         for index, row in enumerate(self.X_data):   # iterate over all the rows in the dataset
             term = self.weights[0]
