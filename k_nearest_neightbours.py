@@ -11,13 +11,13 @@ from typing import (
     TypeVar,
     Generic,
 )
-
+from collections.abc import Mapping
 
 TData = TypeVar("TData", np.ndarray, pd.DataFrame)
 
 
 class KNearestNeighboursClassifier(Generic[TData]):
-    def __init__(self, /, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Mapping[str, int]) -> None:
+    def __init__(self, *, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Mapping[str, int]) -> None:
         if n_neighbors is None:
             n_neighbors = 3
 
