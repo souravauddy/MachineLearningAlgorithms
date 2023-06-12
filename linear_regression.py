@@ -1,5 +1,5 @@
 from __future__ import annotations
-from typing import Self, Any, Tuple
+from typing import Self, Any, Tuple, Final
 import numpy as np
 import sys
 
@@ -11,10 +11,10 @@ space complexity = O(size of the dataset)
 """
 
 
-SEED: int = 42
-SIZE: int = 100
-LEARNING_RATE: float = 0.1   # learning rate
-EPOCHS: int = 1000
+SEED: Final[int] = 42
+SIZE: Final[int] = 100
+LEARNING_RATE: Final[float] = 0.1   # learning rate
+EPOCHS: Final[int] = 1000
 
 
 class LinearRegression(object):
@@ -77,12 +77,13 @@ class LinearRegression(object):
             print(f"best cost function value is {best_cost}, and the weights are {best_weights}")
         """
 
-    def _gradient(self) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    def _gradient(self) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
         gradient = np.zeros(self.size)
 
         for weight_index, _ in enumerate(gradient):
             gradient[weight_index] = self._partial_derivative(weight_index)
 
+        reveal_type(gradient)
         return gradient
 
     def _cost_function(self) -> float:

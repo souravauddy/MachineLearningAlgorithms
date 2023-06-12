@@ -10,13 +10,14 @@ import numpy as np
 from math import log
 from typing import (
     Self,
+    Final,
 )
 
 
-ALPHA: float = 0.2    # learning rate, here it is called alpha
-SEED: int = 42
-EPOCHS: int = 1000
-THRESHOLD: float = 0.5
+ALPHA: Final[float] = 0.2    # learning rate, here it is called alpha
+SEED: Final[int] = 42
+EPOCHS: Final[int] = 1000
+THRESHOLD: Final[float] = 0.5
 
 
 class LogisticRegression(object):
@@ -34,7 +35,7 @@ class LogisticRegression(object):
         return self
 
     @property
-    def weights_(self) -> np.ndarray[float]:
+    def weights_(self) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
         return self.weights.copy()
 
     def _gradient_descent(self) -> None:
@@ -71,7 +72,7 @@ class LogisticRegression(object):
 
         return derivative / len(self.y_data)
 
-    def _gradient(self) -> np.ndarray[float]:
+    def _gradient(self) -> np.ndarray[tuple[int], np.dtype[float]]:
         return np.array([self._partial_derivative(weight_index) for weight_index in range(self.NUMBER_OF_WEIGHTS)])
 
     def _cost_function(self) -> float:      # this is the log loss cost function
@@ -87,7 +88,7 @@ class LogisticRegression(object):
 
     @staticmethod
     def sigmoid(x: float) -> float:
-        return 1 / (1 + (np.e ** -x))
+        return 1 / (1 + (np.exp(-x)))
 
 
 def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:

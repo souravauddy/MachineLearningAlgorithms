@@ -13,6 +13,7 @@ from typing import (
 )
 from collections.abc import Mapping
 
+
 TData = TypeVar("TData", np.ndarray, pd.DataFrame)
 
 
