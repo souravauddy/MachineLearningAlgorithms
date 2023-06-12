@@ -72,11 +72,11 @@ class LogisticRegression(object):
 
         return derivative / len(self.y_data)
 
-    def _gradient(self) -> np.ndarray[tuple[int], np.dtype[float]]:
+    def _gradient(self) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
         return np.array([self._partial_derivative(weight_index) for weight_index in range(self.NUMBER_OF_WEIGHTS)])
 
     def _cost_function(self) -> float:      # this is the log loss cost function
-        log_loss = 0
+        log_loss = 0.0
 
         for index, row in enumerate(self.X_data):
             probability = self.predict_probability(row)
