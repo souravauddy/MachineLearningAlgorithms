@@ -7,6 +7,8 @@ from sklearn.datasets import load_iris
 from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 import numpy as np
+import typing
+import dataclasses
 from math import log
 from typing import (
     Self,
@@ -18,6 +20,13 @@ ALPHA: Final[float] = 0.2    # learning rate, here it is called alpha
 SEED: Final[int] = 42
 EPOCHS: Final[int] = 1000
 THRESHOLD: Final[float] = 0.5
+
+
+@dataclasses.dataclass
+class Node:
+    distance: int = 0
+    left: Node | None = None
+    right: Node | None = None
 
 
 class LogisticRegression(object):
@@ -43,7 +52,7 @@ class LogisticRegression(object):
             self.weights = self.weights - self.ALPHA * self._gradient()
             # print(f"{epoch=}, cost = {self._cost_function()}")
 
-    def predict_probability(self, x_vector: np.ndarray) -> float:
+    def predict_probability(self, x_vector: np.ndarray[tuple[int], np.dtype[np.float64]]) -> float:
         probability = self.weights[0]
 
         for index, x in enumerate(x_vector, start=1):
@@ -73,9 +82,16 @@ class LogisticRegression(object):
         return derivative / len(self.y_data)
 
     def _gradient(self) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+        """
+            computes the gradient vector and returns it in the form of a numpy array.
+        """
         return np.array([self._partial_derivative(weight_index) for weight_index in range(self.NUMBER_OF_WEIGHTS)])
 
     def _cost_function(self) -> float:      # this is the log loss cost function
+        """
+            computes the current loss value.
+            Here we use log loss.
+        """
         log_loss = 0.0
 
         for index, row in enumerate(self.X_data):
