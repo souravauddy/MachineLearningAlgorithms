@@ -1,7 +1,13 @@
 from __future__ import annotations
-from typing import Self, Any, Tuple, Final
 import numpy as np
-import sys
+from typing import (
+    Self, 
+    Final
+)
+from numpy.typing import (
+    NDArray
+)
+
 
 """
 N = No of features
@@ -83,7 +89,6 @@ class LinearRegression(object):
         for weight_index, _ in enumerate(gradient):
             gradient[weight_index] = self._partial_derivative(weight_index)
 
-        reveal_type(gradient)
         return gradient
 
     def _cost_function(self) -> float:
@@ -102,7 +107,7 @@ class LinearRegression(object):
         return mean_squared_error ** 0.5
     
 
-def generate_random_data(SEED: int) -> tuple[np.ndarray, np.ndarray]:
+def generate_random_data(SEED: int) -> tuple[np.ndarray[tuple[int, int], np.dtype[np.float64]], np.ndarray[tuple[int, int], np.dtype[np.float64]]]:
     np.random.seed(SEED)
 
     X_data = 2 * np.random.rand(SIZE, 1)    # with only one variable
