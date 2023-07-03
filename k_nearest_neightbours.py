@@ -1,10 +1,10 @@
 from __future__ import annotations
 import numpy as np
-import pandas as pd     # type: ignore
-import scipy.spatial    # type: ignore
-from sklearn.datasets import load_iris      # type: ignore
-from sklearn.model_selection import train_test_split        # type: ignore
-from sklearn.metrics import accuracy_score      # type: ignore
+import pandas as pd
+import scipy.spatial.distance    
+from sklearn.datasets import load_iris
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
 from typing import (
     Mapping,
     Self,
@@ -40,20 +40,11 @@ class KNearestNeighboursClassifier(Generic[TData]):
 
         distances = []
 
-        for index, vector in enumerate(self.X_data):
+        for vector, data in zip(self.X_data, self.y_data):
             distance = distance_function(vector, prediction_vector, p=self.p)
-            distances.append((distance, self.y_data[index]))
+            distances.append((distance, data))
 
-        distances.sort(
-            key=type(
-                "_TupleComparison",
-                (tuple,),
-                {
-                    "__lt__": lambda x, y: x[0] < y[0]
-                }
-            )
-        )
-
+        distances.sort()
         neighbors = distances[:self.n_neighbors]
         ones_count = sum((neighbor[1] for neighbor in neighbors))
         zeros_count = self.n_neighbors - ones_count
