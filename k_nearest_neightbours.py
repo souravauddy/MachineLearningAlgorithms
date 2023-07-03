@@ -19,6 +19,13 @@ TData = TypeVar("TData", np.ndarray, pd.DataFrame)
 
 class KNearestNeighboursClassifier(Generic[TData]):
     def __init__(self, *, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Mapping[str, int]) -> None:
+        """takes input the hyperparameters, for the KNN classifier.
+
+        Args:
+            n_neighbors (int | None, optional): no of neighbors to consider. Defaults to None.
+            distance_type (str, optional): type of the distance to use. Defaults to "euclidean".
+        """
+
         if n_neighbors is None:
             n_neighbors = 3
 
@@ -27,11 +34,30 @@ class KNearestNeighboursClassifier(Generic[TData]):
         self.p = _kwargs.get('p') if _kwargs is not None and isinstance(_kwargs, Mapping) else None
 
     def fit(self, X_data: TData, y_data: TData) -> Self:
+        """takes input the data and stores it all the computation is done during the predict method call.
+
+        Args:
+            X_data (TData): vector of input features
+            y_data (TData): vector of output features
+
+        Returns:
+            Self: returns the same instance, with which it was called. 
+        """
+        
         self.X_data = X_data
         self.y_data = y_data
         return self
 
     def predict(self, prediction_vector: TData) -> int:
+        """predict which class the vector belongs to.
+
+        Args:
+            prediction_vector (TData): classify the type of the prediction vector.
+
+        Returns:
+            int: returns the class of the vector. (0 or 1) in binary classification.
+        """
+
         distance_function = {
             "euclidean": self.euclidean_distance,
             "manhattan": self.manhattan_distance,
@@ -53,18 +79,58 @@ class KNearestNeighboursClassifier(Generic[TData]):
     
     @staticmethod
     def euclidean_distance(vector1: TData, vector2: TData, **_) -> float:
+        """returns the euclidean distance between two vectors.
+
+        Args:
+            vector1 (TData): first vector
+            vector2 (TData): second vector
+
+        Returns:
+            float: distance between the two vectors
+        """
+
         return scipy.spatial.distance.euclidean(vector1, vector2)
     
     @staticmethod
     def manhattan_distance(vector1: TData, vector2: TData, **_) -> float:
+        """returns the manhattan distance between the two vectors.
+
+        Args:
+            vector1 (TData): first vector.
+            vector2 (TData): second vector.
+
+        Returns:
+            float: manhattan distance of the two vectors.
+        """
+        
         return scipy.spatial.distance.minkowski(vector1, vector2, p=1)
     
     @staticmethod
     def minkowski_distance(vector1: TData, vector2: TData, p: int) -> float:
+        """returns the minkowski distance between the two vectors using the 'p' hyperparameter.
+
+        Args:
+            vector1 (TData): first vector.
+            vector2 (TData): second vector.
+            p (int): hyperparameter for minkowski distance.
+
+        Returns:
+            float: minkowski distance between the two vectors.
+        """
+        
         return scipy.spatial.distance.minkowski(vector1, vector2, p=p)
     
 
 def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
+    """Generate random data using seed, or use builtin datasets in sklearn.
+
+    Args:
+        seed (int | None, optional): seed value to initialze random generator, to produce reproducable results. Defaults to None.
+
+    Returns:
+        tuple[np.ndarray, np.ndarray]: input data and output data.
+    """
+    
     if seed is None:
         seed = 42
 
