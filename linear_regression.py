@@ -2,8 +2,8 @@ from __future__ import annotations
 import numpy as np
 import sys
 from typing import (
-    Self, 
-    Final
+    Self,
+    Final,
 )
 from numpy.typing import (
     NDArray,
@@ -60,17 +60,17 @@ class LinearRegression(object):
             self._gradient_descent(unlimited_epcohs=True)
 
         return self
-    
+
     @property
-    def weights_(self) -> np.ndarray[tuple[int, int], np.dtype[np.float64]]:
+    def weights_(self) -> NDArray:
         """returns the optimal weights, should be called after calling the fit method.
 
         Returns:
-            np.ndarray[tuple[int, int], np.dtype[np.float64]]: returns the weights as a numpy array.
+            NDArray: returns the weights as a numpy array.
         """
 
         return self.weights.copy()
-    
+
     def _partial_derivative(self, weight_index: int) -> float:
         """computes the partial derivative of a single vector and returns its value.
 
@@ -91,7 +91,7 @@ class LinearRegression(object):
             for i, x in enumerate(row, start=1):
                 term += self.weights[i] * x
 
-            term -= self.y_data[index] 
+            term -= self.y_data[index]
             term *= CO_EFFICIENT
             derivative += term
 
@@ -103,16 +103,18 @@ class LinearRegression(object):
         Args:
             unlimited_epcohs (bool, optional): for unlimited epcohs, using keyboard interrupt. Defaults to False.
         """
-        
+
         if not unlimited_epcohs:
+            assert self.EPOCHS is not None, print("self.EPOCHS is None", file=sys.stderr)
+
             for epoch in range(self.EPOCHS):
                 self.weights = self.weights - self.LEARNING_RATE * self._gradient()
                 print(f"{epoch=}, {self.weights=}")
-            
+
             return
 
         best_weights = None
-        best_cost = sys.maxsize
+        best_cost = float(sys.maxsize)
         epoch = 1
 
         try:
@@ -123,15 +125,14 @@ class LinearRegression(object):
                 if cost < best_cost:
                     best_cost = cost
                     best_weights = self.weights
-                
+
                 print(f"{epoch=}, and {cost=}")
                 epoch += 1
         except KeyboardInterrupt:
             assert best_weights is not None
             print(f"best cost function value is {best_cost}, and the weights are {best_weights}")
 
-
-    def _gradient(self) -> np.ndarray[tuple[int], np.dtype[np.float64]]:
+    def _gradient(self) -> NDArray:
         """returns the gradient vector, with all the computed parital derivatives.
 
         Returns:
@@ -165,16 +166,16 @@ class LinearRegression(object):
         mean_squared_error = mean_squared_error / len(self.y_data)
 
         return mean_squared_error ** 0.5
-    
 
-def generate_random_data(seed: int) -> tuple[np.ndarray[tuple[int, int], np.dtype[np.float64]], np.ndarray[tuple[int, int], np.dtype[np.float64]]]:
+
+def generate_random_data(seed: int) -> tuple[NDArray, NDArray]:
     """generates random data for linear regression, using the SEED parameter.
 
     Args:
         seed (int): value to reproduce the results
 
     Returns:
-        tuple[np.ndarray[tuple[int, int], np.dtype[np.float64]], np.ndarray[tuple[int, int], np.dtype[np.float64]]]: two numpy arrays, input features and output column
+        tuple[NDArray, NDArray]: two numpy arrays, input features and output column
     """
 
     np.random.seed(seed)
