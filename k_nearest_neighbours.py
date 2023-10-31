@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ast import Call
 import numpy as np
 import pandas as pd
 import scipy.spatial.distance    
@@ -6,20 +7,31 @@ from sklearn.datasets import load_iris
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
 from typing import (
+    Any,
+    Callable,
     Mapping,
+    Optional,
     Self,
     TypeVar,
     Generic,
+    TypedDict,
+    Unpack,
 )
-from collections.abc import Mapping
+from numpy.typing import (
+    NDArray
+)
 
 
-TData = TypeVar("TData", np.ndarray, pd.DataFrame)
+TData = TypeVar("TData", bound=NDArray)
+
+
+class TypedKeywordArguments(TypedDict, total=False):
+    p: int
 
 
 class KNearestNeighboursClassifier(Generic[TData]):
-    def __init__(self, *, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Mapping[str, int]) -> None:
-        """takes input the hyperparameters, for the KNN classifier.
+    def __init__(self, *, n_neighbors: int | None = None, distance_type: str = "euclidean", **_kwargs: Unpack[TypedKeywordArguments]) -> None:
+        """Takes input the hyperparameters, for the KNN classifier.
 
         Args:
             n_neighbors (int | None, optional): no of neighbors to consider. Defaults to None.
@@ -31,10 +43,10 @@ class KNearestNeighboursClassifier(Generic[TData]):
 
         self.n_neighbors = n_neighbors | 1
         self.distance_type = distance_type
-        self.p = _kwargs.get('p') if _kwargs is not None and isinstance(_kwargs, Mapping) else None
+        self.p = _kwargs.get('p', None)
 
     def fit(self, X_data: TData, y_data: TData) -> Self:
-        """takes input the data and stores it all the computation is done during the predict method call.
+        """Takes input the data and stores it all the computation is done during the predict method call.
 
         Args:
             X_data (TData): vector of input features
@@ -49,7 +61,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
         return self
 
     def predict(self, prediction_vector: TData) -> int:
-        """predict which class the vector belongs to.
+        """Predict which class the vector belongs to.
 
         Args:
             prediction_vector (TData): classify the type of the prediction vector.
@@ -58,7 +70,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
             int: returns the class of the vector. (0 or 1) in binary classification.
         """
 
-        distance_function = {
+        distance_function: function = {
             "euclidean": self.euclidean_distance,
             "manhattan": self.manhattan_distance,
             "minkowski": self.minkowski_distance,
@@ -67,7 +79,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
         distances = []
 
         for vector, data in zip(self.X_data, self.y_data):
-            distance = distance_function(vector, prediction_vector, p=self.p)
+            distance = distance_function(vector, prediction_vector, p=self.p)   #type: ignore
             distances.append((distance, data))
 
         distances.sort()
@@ -78,8 +90,8 @@ class KNearestNeighboursClassifier(Generic[TData]):
         return int(ones_count > zeros_count) 
     
     @staticmethod
-    def euclidean_distance(vector1: TData, vector2: TData, **_) -> float:
-        """returns the euclidean distance between two vectors.
+    def euclidean_distance(vector1: TData, vector2: TData, _: None = None) -> float:
+        """Returns the euclidean distance between two vectors.
 
         Args:
             vector1 (TData): first vector
@@ -92,8 +104,8 @@ class KNearestNeighboursClassifier(Generic[TData]):
         return scipy.spatial.distance.euclidean(vector1, vector2)
     
     @staticmethod
-    def manhattan_distance(vector1: TData, vector2: TData, **_) -> float:
-        """returns the manhattan distance between the two vectors.
+    def manhattan_distance(vector1: TData, vector2: TData, _: None = None) -> float:
+        """Returns the manhattan distance between the two vectors.
 
         Args:
             vector1 (TData): first vector.
@@ -107,7 +119,7 @@ class KNearestNeighboursClassifier(Generic[TData]):
     
     @staticmethod
     def minkowski_distance(vector1: TData, vector2: TData, p: int) -> float:
-        """returns the minkowski distance between the two vectors using the 'p' hyperparameter.
+        """Returns the minkowski distance between the two vectors using the 'p' hyperparameter.
 
         Args:
             vector1 (TData): first vector.
@@ -121,14 +133,14 @@ class KNearestNeighboursClassifier(Generic[TData]):
         return scipy.spatial.distance.minkowski(vector1, vector2, p=p)
     
 
-def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
+def generate_data(seed: int | None = None) -> tuple[NDArray, NDArray]:
     """Generate random data using seed, or use builtin datasets in sklearn.
 
     Args:
         seed (int | None, optional): seed value to initialze random generator, to produce reproducable results. Defaults to None.
 
     Returns:
-        tuple[np.ndarray, np.ndarray]: input data and output data.
+        tuple[NDArray, NDArray]: input data and output data.
     """
     
     if seed is None:
@@ -147,7 +159,7 @@ def generate_data(seed: int | None = None) -> tuple[np.ndarray, np.ndarray]:
 def main() -> int:
     X_data, y_data = generate_data()
     X_train, X_test, y_train, y_test = train_test_split(X_data, y_data)
-    k_nearest_neighbors_classifier = KNearestNeighboursClassifier(n_neighbors=5, distance_type="minkowski", p=1)
+    k_nearest_neighbors_classifier = KNearestNeighboursClassifier(n_neighbors=5, distance_type="minkowski", p=1)    #type: ignore
     k_nearest_neighbors_classifier = k_nearest_neighbors_classifier.fit(X_train, y_train)
     predictions = np.array([k_nearest_neighbors_classifier.predict(vector) for vector in X_test])
     score = accuracy_score(y_test, predictions)
