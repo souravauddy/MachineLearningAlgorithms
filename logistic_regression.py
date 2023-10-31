@@ -8,7 +8,6 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import cross_val_score
 import numpy as np
 import typing
-import dataclasses
 from math import log
 from typing import (
     Self,
@@ -20,13 +19,6 @@ ALPHA: Final[float] = 0.2    # learning rate, here it is called alpha
 SEED: Final[int] = 42
 EPOCHS: Final[int] = 1000
 THRESHOLD: Final[float] = 0.5
-
-
-@dataclasses.dataclass
-class Node:
-    distance: int = 0
-    left: Node | None = None
-    right: Node | None = None
 
 
 class LogisticRegression(object):
